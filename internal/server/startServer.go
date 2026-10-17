@@ -11,7 +11,7 @@ import (
 )
 
 func StartServer(port string) {
-	metricsCfg := metrics.MetricsConfig{
+	metricsCfg := &metrics.MetricsConfig{
 		FileserverRequests: atomic.Int32{},
 	}
 
@@ -21,14 +21,14 @@ func StartServer(port string) {
 	mux := http.NewServeMux()
 
 	// fileserver endpoint (serves static files, tracked via metrics)
-	mux.Handle("/app/", fileserver.HandlerFileserver(&metricsCfg, fsPrefix, fsRoot))
+	mux.Handle("/app/", fileserver.HandlerFileserver(metricsCfg, fsRoot, fsPrefix))
 
 	// health check
 	mux.HandleFunc("GET /api/healthz", api.HandlerReadiness)
 
 	// metrics reporting/reset
-	mux.HandleFunc("GET /api/metrics", metricsCfg.HandlerMetricsRequest)
-	mux.HandleFunc("POST /api/reset", metricsCfg.HandlerMetricsReset)
+	mux.HandleFunc("GET /admin/metrics", metricsCfg.HandlerMetricsRequest)
+	mux.HandleFunc("POST /admin/reset", metricsCfg.HandlerMetricsReset)
 
 	srv := &http.Server{
 		Addr:    ":" + port,

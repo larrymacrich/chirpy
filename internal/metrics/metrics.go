@@ -6,10 +6,18 @@ import (
 )
 
 func (cfg *MetricsConfig) HandlerMetricsRequest(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8") // normal header
+	w.Header().Set("Content-Type", "text/html; charset=utf-8") // normal header
 	w.WriteHeader(http.StatusOK)
-	body := fmt.Sprintf("Hits: %v\n", cfg.FileserverRequests.Load())
-	w.Write([]byte(body))
+	w.Write([]byte(createMetricsHTMLContent(cfg)))
+}
+
+func createMetricsHTMLContent(cfg *MetricsConfig) string {
+	return fmt.Sprintf(`<html>
+  <body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited %d times!</p>
+  </body>
+</html>`, cfg.FileserverRequests.Load())
 }
 
 func (cfg *MetricsConfig) MiddlewareMetricsInc(next http.Handler) http.Handler {

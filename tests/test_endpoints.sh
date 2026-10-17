@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 # --- Vars ---
-BASE_URL_API="http://localhost:8080/api"
 BASE_URL_APP="http://localhost:8080"
+BASE_URL_API="http://localhost:8080/api"
+BASE_URL_ADMIN="http://localhost:8080/admin"
+
 
 # --- Functions ---
 # -- Status Check --
@@ -32,37 +34,42 @@ runTest() {
         method_index=$(( i * 2 ))
         url_index=$(( i * 2 + 1 ))
         status "${inputs[$method_index]}" "${inputs[$url_index]}"
+        echo "========================"
     done
 }
 
 # --- Test cases ---
 # -- Happy path --
 test_case_happy=(
-    "POST /api/reset"
-    "GET /api/metrics (FileserverRequests: 0)"
+    "POST /admin/reset"
+    "GET /admin/metrics (FileserverRequests: 0)"
     "GET /app"
+    "GET /admin/metrics (FileserverRequests: 1)"
     "GET /app/assets/"
+    "GET /admin/metrics (FileserverRequests: 2)"
     "GET /api/healthz"
-    "GET /api/metrics (FileserverRequests: 2)" 
+    "GET /admin/metrics (FileserverRequests: 2)" 
 )
 test_input_happy=(
-    "POST" "$BASE_URL_API/reset"
-    "GET" "$BASE_URL_API/metrics"
+    "POST" "$BASE_URL_ADMIN/reset"
+    "GET" "$BASE_URL_ADMIN/metrics"
     "GET" "$BASE_URL_APP/app"
+    "GET" "$BASE_URL_ADMIN/metrics"
     "GET" "$BASE_URL_APP/app/assets/"
+    "GET" "$BASE_URL_ADMIN/metrics"
     "GET" "$BASE_URL_API/healthz"
-    "GET" "$BASE_URL_API/metrics"
+    "GET" "$BASE_URL_ADMIN/metrics"
 )
 # -- Error/sad path --
 test_case_bad=(
     "POST /api/healthz (should be rejected)"
     "POST /api/healthz (should be rejected)"
-    "GET /api/reset (should be rejected)"
+    "GET /admin/reset (should be rejected)"
 ) 
 test_input_bad=(
     "POST" "$BASE_URL_API/healthz"
-    "POST" "$BASE_URL_API/metrics"
-    "GET" "$BASE_URL_API/reset"  
+    "POST" "$BASE_URL_ADMIN/metrics"
+    "GET" "$BASE_URL_ADMIN/reset"  
 ) 
 
 # --- Run tests ---
