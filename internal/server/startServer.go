@@ -23,8 +23,9 @@ func StartServer(port string) {
 	// fileserver endpoint (serves static files, tracked via metrics)
 	mux.Handle("/app/", fileserver.HandlerFileserver(metricsCfg, fsRoot, fsPrefix))
 
-	// health check
+	// api endpoints (health check, validate)
 	mux.HandleFunc("GET /api/healthz", api.HandlerReadiness)
+	mux.HandleFunc("POST /api/validate_chirp", api.HandlerValidateChirp)
 
 	// metrics reporting/reset
 	mux.HandleFunc("GET /admin/metrics", metricsCfg.HandlerMetricsRequest)
